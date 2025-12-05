@@ -125,6 +125,27 @@ describe("detect-workflow-phase", () => {
 			expect(result.mergedReleasePRNumber).toBe(99);
 		});
 
+		it("should detect validation phase on open PR from release branch to main", async () => {
+			mockContext.eventName = "pull_request";
+			mockContext.ref = "refs/pull/42/merge";
+			mockContext.payload = {
+				pull_request: {
+					number: 42,
+					merged: false,
+					head: { ref: "changeset-release/main" },
+					base: { ref: "main" },
+				},
+			};
+
+			const result = await detectWorkflowPhase(createOptions());
+
+			expect(result.phase).toBe("validation");
+			expect(result.reason).toBe("Open PR #42 from changeset-release/main to main");
+			expect(result.isPullRequestEvent).toBe(true);
+			expect(result.isPRMerged).toBe(false);
+			expect(result.isReleasePRMerged).toBe(false);
+		});
+
 		it("should detect none phase for unrelated branches", async () => {
 			mockContext.ref = "refs/heads/feature/my-feature";
 			mockOctokit.rest.repos.listPullRequestsAssociatedWithCommit.mockResolvedValue({ data: [] });
@@ -284,6 +305,26 @@ describe("detect-workflow-phase", () => {
 
 			expect(result.phase).toBe("close-issues");
 			expect(result.isReleasePRMerged).toBe(true);
+		});
+
+		it("should detect validation on open PR from release branch to main", () => {
+			mockContext.eventName = "pull_request";
+			mockContext.ref = "refs/pull/55/merge";
+			mockContext.payload = {
+				pull_request: {
+					number: 55,
+					merged: false,
+					head: { ref: "changeset-release/main" },
+					base: { ref: "main" },
+				},
+			};
+
+			const result = detectWorkflowPhaseSync(createSyncOptions());
+
+			expect(result.phase).toBe("validation");
+			expect(result.reason).toBe("Open PR #55 from changeset-release/main to main");
+			expect(result.isPullRequestEvent).toBe(true);
+			expect(result.isPRMerged).toBe(false);
 		});
 
 		it("should detect none phase for other branches", () => {

@@ -108,12 +108,26 @@ export async function detectWorkflowPhase(options: PhaseDetectionOptions): Promi
 		commitMessage: commitMessage.substring(0, 100) + (commitMessage.length > 100 ? "..." : ""),
 	};
 
+	// Detect if this is an open PR from release branch to target branch
+	const isReleasePROpen =
+		isPullRequestEvent &&
+		!isPRMerged &&
+		pullRequest?.head?.ref === releaseBranch &&
+		pullRequest?.base?.ref === targetBranch;
+
 	// Phase 3a: Close linked issues (on release PR merge via pull_request event)
 	if (isReleasePRMerged && pullRequest) {
 		result.phase = "close-issues";
 		result.reason = `Release PR #${pullRequest.number} merged via pull_request event`;
 		result.mergedReleasePRNumber = pullRequest.number;
 		result.isReleaseCommit = true;
+		return result;
+	}
+
+	// Phase 2a: Pre-publish validation (on open PR from release branch to main)
+	if (isReleasePROpen && pullRequest) {
+		result.phase = "validation";
+		result.reason = `Open PR #${pullRequest.number} from ${releaseBranch} to ${targetBranch}`;
 		return result;
 	}
 
@@ -286,6 +300,13 @@ export function detectWorkflowPhaseSync(options: {
 	// Detect release commit from message (sync fallback)
 	const { isReleaseCommit } = detectReleaseCommitFromMessage(commitMessage, releaseBranch, context.repo.owner);
 
+	// Detect if this is an open PR from release branch to target branch
+	const isReleasePROpen =
+		isPullRequestEvent &&
+		!isPRMerged &&
+		pullRequest?.head?.ref === releaseBranch &&
+		pullRequest?.base?.ref === targetBranch;
+
 	const result: Omit<PhaseDetectionResult, "mergedReleasePRNumber"> = {
 		phase: "none",
 		reason: "",
@@ -307,7 +328,14 @@ export function detectWorkflowPhaseSync(options: {
 		return result;
 	}
 
-	// Phase 2: Validation
+	// Phase 2a: Pre-publish validation (on open PR from release branch to main)
+	if (isReleasePROpen && pullRequest) {
+		result.phase = "validation";
+		result.reason = `Open PR #${pullRequest.number} from ${releaseBranch} to ${targetBranch}`;
+		return result;
+	}
+
+	// Phase 2: Validation (push to release branch)
 	if (isReleaseBranch) {
 		result.phase = "validation";
 		result.reason = `Push to release branch ${releaseBranch}`;

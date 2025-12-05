@@ -85,7 +85,7 @@ The action uses a sophisticated detection algorithm:
 
 1. **Phase 3a (close-issues)**: Detects `pull_request` event where release PR was merged to main
 2. **Phase 3 (publishing)**: Push to main from a merged release PR commit
-3. **Phase 2 (validation)**: Push to the release branch
+3. **Phase 2 (validation)**: Push to the release branch OR open PR from release branch to main
 4. **Phase 1 (branch-management)**: Push to main with a non-release commit
 5. **none**: Any other scenario (feature branches, external PRs, etc.)
 
