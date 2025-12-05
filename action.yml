@@ -1,21 +1,52 @@
-name: Workflow Release
-description: Automated release management with changesets, build validation, and GitHub releases
+name: Workflow Control
+description: Lightweight pre-flight checks for splitting monolithic release workflows into targeted pieces
 
 branding:
-  icon: package
-  color: blue
+  icon: git-branch
+  color: green
 
 inputs:
-  demo:
-    description: Demo input for testing purposes
-    required: true
+  token:
+    description: GitHub token for API calls (detects merged release PRs)
+    required: false
+    default: ${{ github.token }}
+  release-branch:
+    description: Release branch name
+    required: false
+    default: changeset-release/main
+  target-branch:
+    description: Target branch name (usually main)
+    required: false
+    default: main
 
 outputs:
-  demo:
-    description: Demo output for testing purposes
+  phase:
+    description: |
+      Detected workflow phase:
+      - branch-management: Push to main, should create/update release branch
+      - validation: Push to release branch, should run validation
+      - publishing: Release PR merged, should publish packages
+      - close-issues: Release PR merged via PR event, should close issues
+      - none: No action needed
+  has_changesets:
+    description: Whether changeset files exist in .changeset directory
+  changeset_count:
+    description: Number of changeset files found
+  release_type:
+    description: Highest release type across changesets (major, minor, patch, or empty)
+  is_release_commit:
+    description: Whether this commit is from a merged release PR
+  is_release_branch:
+    description: Whether currently on the release branch
+  is_main_branch:
+    description: Whether currently on the target (main) branch
+  merged_pr_number:
+    description: PR number of the merged release PR (if detected)
+  should_continue:
+    description: Whether the workflow should proceed (phase is not 'none')
+  reason:
+    description: Human-readable explanation of the phase detection
 
 runs:
   using: node24
-  pre: dist/pre.js
   main: dist/main.js
-  post: dist/post.js

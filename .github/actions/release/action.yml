@@ -1,144 +1,52 @@
-name: Workflow Release
-description: Automated release management with changesets, build validation, and GitHub releases
+name: Workflow Control
+description: Lightweight pre-flight checks for splitting monolithic release workflows into targeted pieces
 
 branding:
-  icon: package
-  color: blue
+  icon: git-branch
+  color: green
 
 inputs:
-  # GitHub App authentication (required)
-  app-id:
-    description: GitHub App ID for authentication
-    required: true
-  private-key:
-    description: GitHub App private key (PEM format)
-    required: true
-  github-token:
-    description: |
-      GitHub token for GitHub Packages publishing (optional).
-      Use this when the GitHub App doesn't have packages:write permission.
-      Typically pass secrets.GITHUB_TOKEN with workflow permissions: packages: write.
+  token:
+    description: GitHub token for API calls (detects merged release PRs)
     required: false
-    default: ""
-  skip-token-revoke:
-    description: Skip token revocation in post-action (tokens expire after 1 hour anyway)
-    required: false
-    default: "false"
-
+    default: ${{ github.token }}
   release-branch:
     description: Release branch name
     required: false
     default: changeset-release/main
   target-branch:
-    description: Target branch for PR (usually main)
+    description: Target branch name (usually main)
     required: false
     default: main
-  version-command:
-    description: Custom version command (defaults to auto-detected package-manager ci:version)
-    required: false
-    default: ""
-  pr-title-prefix:
-    description: Prefix for release PR title
-    required: false
-    default: "chore: release"
-  dry-run:
-    description: Run in dry-run mode (preview only, no actual changes)
-    required: false
-    default: "false"
-
-  # Custom registry authentication
-  # NOTE: npm and JSR use OIDC trusted publishing - no tokens needed
-  # NOTE: GitHub Packages uses the GitHub App token automatically
-  custom-registries:
-    description: |
-      Custom registries with authentication (one per line).
-
-      Format:
-        https://registry.example.com/                         # GitHub App token used as fallback (registry ignores if auth not required)
-        https://registry.example.com/$\{{ secrets.AUTH }}     # Uses auth string from secret
-
-      The secret should contain the npmrc auth string:
-        - Token auth: _authToken=<your-token>
-        - Htpasswd:   _auth=<base64-encoded-credentials>
-
-      Example:
-        custom-registries: |
-          https://registry.my-company.com/$\{{ secrets.MY_COMPANY_NPM_AUTH }}
-          https://registry.my-other-company.com/$\{{ secrets.MY_COMPANY_NPM_AUTH }}
-
-
-      Note: npm/JSR use OIDC trusted publishing (no configuration needed)
-      Note: GitHub Packages authenticates automatically with the GitHub App token
-    required: false
-    default: ""
-
-  # Optional inputs
-  anthropic-api-key:
-    description: Anthropic API key for Claude PR description generation
-    required: false
-    default: ""
-  claude-review-pat:
-    description: GitHub PAT for operations requiring user context
-    required: false
-    default: ""
 
 outputs:
-  # Token outputs (when using app-id/private-key)
-  token:
-    description: Generated GitHub App installation token (for use in subsequent steps)
-  installation-id:
-    description: GitHub App installation ID
-  app-slug:
-    description: GitHub App slug (URL-friendly name)
-
-  # Phase 1: Detection outputs
-  has_changes:
-    description: Whether publishable changes were detected
-  publishable_packages:
-    description: JSON array of packages with changes
-
-  # Phase 1: Branch outputs
-  release_branch_exists:
-    description: Whether the release branch exists
-  release_branch_has_open_pr:
-    description: Whether there's an open PR
-  release_pr_number:
-    description: PR number if PR exists
-  release_branch_created:
-    description: Whether a new release branch was created
-  release_branch_updated:
-    description: Whether the release branch was updated
-  has_conflicts:
-    description: Whether the update resulted in conflicts
-
-  # Phase 2: Validation outputs
-  linked_issues:
-    description: JSON array of linked issues
-  pr_description:
-    description: Generated PR description
-  builds_passed:
-    description: Whether all builds passed
-  npm_publish_ready:
-    description: Whether packages are ready for NPM publish
-  github_packages_ready:
-    description: Whether packages are ready for GitHub Packages
-
-  # Multi-registry publish outputs
-  released_packages:
-    description: JSON array of released packages with name, version, and targets
+  phase:
+    description: |
+      Detected workflow phase:
+      - branch-management: Push to main, should create/update release branch
+      - validation: Push to release branch, should run validation
+      - publishing: Release PR merged, should publish packages
+      - close-issues: Release PR merged via PR event, should close issues
+      - none: No action needed
+  has_changesets:
+    description: Whether changeset files exist in .changeset directory
+  changeset_count:
+    description: Number of changeset files found
   release_type:
-    description: Type of release (major, minor, or patch)
-  release_tags:
-    description: JSON array of created git tags
-  package_count:
-    description: Number of packages released
-  publish_results:
-    description: JSON array of publish results per package and target
-  success:
-    description: Whether the release was fully successful
+    description: Highest release type across changesets (major, minor, patch, or empty)
+  is_release_commit:
+    description: Whether this commit is from a merged release PR
+  is_release_branch:
+    description: Whether currently on the release branch
+  is_main_branch:
+    description: Whether currently on the target (main) branch
+  merged_pr_number:
+    description: PR number of the merged release PR (if detected)
+  should_continue:
+    description: Whether the workflow should proceed (phase is not 'none')
+  reason:
+    description: Human-readable explanation of the phase detection
 
 runs:
   using: node24
-  pre: dist/pre.js
   main: dist/main.js
-  post: dist/post.js

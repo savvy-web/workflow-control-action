@@ -238,9 +238,11 @@
 		],
 		"defaultMode": "acceptEdits"
 	},
-	"model": "sonnet",
+	"env": {
+		"ANTHROPIC_MODEL": "claude-sonnet-4-5"
+	},
 	"enableAllProjectMcpServers": true,
 	"enabledPlugins": {
-		"workflow@savvy-web-bun-tools": true
+		"workflow@savvy-web-claude-tools": true
 	}
 }
