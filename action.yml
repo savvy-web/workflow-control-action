@@ -1,0 +1,21 @@
+name: Workflow Release
+description: Automated release management with changesets, build validation, and GitHub releases
+
+branding:
+  icon: package
+  color: blue
+
+inputs:
+  demo:
+    description: Demo input for testing purposes
+    required: true
+
+outputs:
+  demo:
+    description: Demo output for testing purposes
+
+runs:
+  using: node24
+  pre: dist/pre.js
+  main: dist/main.js
+  post: dist/post.js
