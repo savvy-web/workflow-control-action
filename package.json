@@ -10,7 +10,6 @@
 	"type": "module",
 	"scripts": {
 		"build": "turbo run build:prod --log-order=grouped",
-		"build:inspect": "rslib inspect --config-loader native --env-mode npm --verbose",
 		"build:prod": "github-action-builder build",
 		"ci:build": "CI=\"true\" turbo run build:prod --log-order=grouped --output-logs=full",
 		"ci:test": "CI=\"true\" vitest run --coverage",
@@ -51,9 +50,6 @@
 	},
 	"devDependencies": {
 		"@changesets/cli": "catalog:silk",
-		"@microsoft/api-extractor": "catalog:silk",
-		"@octokit/types": "^16.0.0",
-		"@rslib/core": "catalog:silk",
 		"@savvy-web/commitlint": "^0.3.1",
 		"@savvy-web/github-action-builder": "^0.1.0",
 		"@savvy-web/lint-staged": "^0.3.1",
