@@ -56,28 +56,28 @@ Add this action as a step in your workflow:
 
 All inputs are optional with sensible defaults.
 
-| Input            | Description                                          | Required | Default                  |
-| ---------------- | ---------------------------------------------------- | -------- | ------------------------ |
-| `token`          | GitHub token for API calls (detects merged PRs)      | No       | `${{ github.token }}`    |
-| `release-branch` | Release branch name                                  | No       | `changeset-release/main` |
-| `target-branch`  | Target branch name (usually main)                    | No       | `main`                   |
+| Input | Description | Required | Default |
+| --- | --- | --- | --- |
+| `token` | GitHub token for API calls (detects merged PRs) | No | `${{ github.token }}` |
+| `release-branch` | Release branch name | No | `changeset-release/main` |
+| `target-branch` | Target branch name (usually main) | No | `main` |
 
 ## Outputs
 
 The action provides comprehensive outputs for workflow control decisions:
 
-| Output              | Type    | Description                                                  |
-| ------------------- | ------- | ------------------------------------------------------------ |
-| `phase`             | string  | Detected phase: `branch-management`, `validation`, etc.      |
-| `has_changesets`    | boolean | Whether changesets exist in `.changeset` directory           |
-| `changeset_count`   | number  | Number of changeset files found                              |
-| `release_type`      | string  | Highest release type: `major`, `minor`, `patch`, or empty    |
-| `is_release_commit` | boolean | Whether this is a release merge commit                       |
-| `is_release_branch` | boolean | Whether currently on the release branch                      |
-| `is_main_branch`    | boolean | Whether currently on the target (main) branch                |
-| `merged_pr_number`  | string  | PR number of the merged release PR (if detected)             |
-| `should_continue`   | boolean | Whether the workflow should proceed (phase is not `none`)    |
-| `reason`            | string  | Human-readable explanation of the phase detection            |
+| Output | Type | Description |
+| --- | --- | --- |
+| `phase` | string | Detected phase: `branch-management`, `validation`, etc. |
+| `has_changesets` | boolean | Whether changesets exist in `.changeset` directory |
+| `changeset_count` | number | Number of changeset files found |
+| `release_type` | string | Highest release type: `major`, `minor`, `patch`, or empty |
+| `is_release_commit` | boolean | Whether this is a release merge commit |
+| `is_release_branch` | boolean | Whether currently on the release branch |
+| `is_main_branch` | boolean | Whether currently on the target (main) branch |
+| `merged_pr_number` | string | PR number of the merged release PR (if detected) |
+| `should_continue` | boolean | Whether the workflow should proceed (phase is not `none`) |
+| `reason` | string | Human-readable explanation of the phase detection |
 
 ## Phase Detection Logic
 
@@ -288,11 +288,11 @@ jobs:
 
 This action is part of a suite of **three companion actions** for release workflow automation:
 
-| Action                    | Purpose                  | When to Use                              |
-| ------------------------- | ------------------------ | ---------------------------------------- |
-| `workflow-control-action` | Pre-flight checks        | Determine **IF** a workflow should run   |
-| `workflow-runtime-action` | Runtime setup & caching  | Set up Node.js, pnpm, and cache deps     |
-| `workflow-release-action` | Full release automation  | Perform the actual release operations    |
+| Action | Purpose | When to Use |
+| --- | --- | --- |
+| `workflow-control-action` | Pre-flight checks | Determine **IF** a workflow should run |
+| `workflow-runtime-action` | Runtime setup & caching | Set up Node.js, pnpm, and cache deps |
+| `workflow-release-action` | Full release automation | Perform the actual release operations |
 
 ### Recommended Pattern
 

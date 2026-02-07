@@ -1,6 +1,5 @@
 import * as core from "@actions/core";
-import type { Context } from "@actions/github/lib/context.js";
-import type { GitHub } from "@actions/github/lib/utils.js";
+import type { getOctokit, context as githubContext } from "@actions/github";
 
 /**
  * Workflow phases for release management
@@ -58,10 +57,10 @@ export interface PhaseDetectionOptions {
 	targetBranch: string;
 
 	/** GitHub context from @actions/github */
-	context: Context;
+	context: typeof githubContext;
 
 	/** Authenticated Octokit instance */
-	octokit: InstanceType<typeof GitHub>;
+	octokit: ReturnType<typeof getOctokit>;
 }
 
 /**
@@ -183,8 +182,8 @@ export async function detectWorkflowPhase(options: PhaseDetectionOptions): Promi
  * Options for release commit detection
  */
 interface ReleaseCommitDetectionOptions {
-	context: Context;
-	octokit: InstanceType<typeof GitHub>;
+	context: typeof githubContext;
+	octokit: ReturnType<typeof getOctokit>;
 	releaseBranch: string;
 	targetBranch: string;
 	commitMessage: string;
@@ -281,7 +280,7 @@ function detectReleaseCommitFromMessage(
 export function detectWorkflowPhaseSync(options: {
 	releaseBranch: string;
 	targetBranch: string;
-	context: Context;
+	context: typeof githubContext;
 }): Omit<PhaseDetectionResult, "mergedReleasePRNumber"> {
 	const { releaseBranch, targetBranch, context } = options;
 
