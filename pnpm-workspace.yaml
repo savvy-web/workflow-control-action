@@ -1,8 +1,8 @@
 packages:
   - .
-
+configDependencies:
+  "@savvy-web/pnpm-plugin-silk": 0.4.0+sha512-VhKBB+lNYczcZ1C5iwJIWborOznelf3RAND8NPapFDQpWR/XzWz/fIbZyq7xrLC9JpjdToKY0FU2UqVIAJvsFQ==
 ignoredBuiltDependencies:
   - core-js
-
 onlyBuiltDependencies:
   - esbuild

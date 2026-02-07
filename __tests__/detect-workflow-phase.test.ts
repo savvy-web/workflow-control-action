@@ -1,6 +1,5 @@
 import * as core from "@actions/core";
 import { context, getOctokit } from "@actions/github";
-import type { Context } from "@actions/github/lib/context.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PhaseDetectionOptions } from "../src/utils/detect-workflow-phase.js";
 import { detectWorkflowPhase, detectWorkflowPhaseSync } from "../src/utils/detect-workflow-phase.js";
@@ -13,7 +12,7 @@ vi.mock("@actions/github");
 
 describe("detect-workflow-phase", () => {
 	let mockOctokit: MockOctokit;
-	let mockContext: Context;
+	let mockContext: typeof context;
 
 	beforeEach(() => {
 		setupTestEnvironment({ suppressOutput: true });
@@ -30,7 +29,7 @@ describe("detect-workflow-phase", () => {
 			payload: {
 				head_commit: { message: "feat: add new feature" },
 			},
-		} as unknown as Context;
+		} as unknown as typeof context;
 
 		Object.defineProperty(vi.mocked(context), "repo", {
 			value: mockContext.repo,
@@ -257,7 +256,7 @@ describe("detect-workflow-phase", () => {
 	});
 
 	describe("detectWorkflowPhaseSync", () => {
-		const createSyncOptions = (): { releaseBranch: string; targetBranch: string; context: Context } => ({
+		const createSyncOptions = (): { releaseBranch: string; targetBranch: string; context: typeof context } => ({
 			releaseBranch: "changeset-release/main",
 			targetBranch: "main",
 			context: mockContext,
