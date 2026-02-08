@@ -110,8 +110,5 @@
 	"[markdown]": {
 		"editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
 	},
-	"markdown.styles": [
-		".vscode/static/github-markdown.css"
-	],
-	"vitest.disableWorkspaceWarning": true
+	"markdown.styles": [".vscode/static/github-markdown.css"]
 }
