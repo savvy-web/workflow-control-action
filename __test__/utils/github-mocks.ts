@@ -1,3 +1,4 @@
+// biome-ignore lint/correctness/noUndeclaredDependencies: Only used in tests, not included in production code
 import { vi } from "vitest";
 import type { MockOctokit } from "./test-types.js";
 
